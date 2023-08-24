@@ -59,3 +59,15 @@ https://github.com/Yzichen/mmLaneDet/assets/54573533/35a053fb-2fa4-4b62-9250-c06
 ## Acknowledgement
 Many thanks to the authors of [mmdetection](https://github.com/open-mmlab/mmdetection) and [lanedet](https://github.com/Turoad/lanedet) .
 
+## Citation
+
+If you find mmLaneNet or DALNet is useful in your research or applications, please consider giving us a star 🌟 and 
+citing it by the following BibTeX entry.
+```bibtex
+@article{yu2023dalnet,
+  title={DALNet: A Rail Detection Network Based on Dynamic Anchor Line},
+  author={Zichen Yu and Quanli Liu and Wei Wang and Liyong Zhang and Xiaoguang Zhao},
+  journal={arXiv preprint arXiv:2308.11381},
+  year={2023}
+}
+```

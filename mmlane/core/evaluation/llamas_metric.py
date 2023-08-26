@@ -25,7 +25,7 @@ from scipy.interpolate import splprep, splev
 from scipy.optimize import linear_sum_assignment
 from shapely.geometry import LineString, Polygon
 
-import clrnet.utils.llamas_utils as llamas_utils
+import mmlane.datasets.llamas_utils as llamas_utils
 import logging
 
 LLAMAS_IMG_RES = (717, 1276)

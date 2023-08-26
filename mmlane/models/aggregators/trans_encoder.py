@@ -5,7 +5,6 @@ from mmcv.runner import BaseModule, auto_fp16
 from mmcv.cnn import ConvModule
 import math
 import time
-from visualizer import get_local
 
 
 class PositionEmbeddingSine(nn.Module):
@@ -200,7 +199,6 @@ class TransEncoderModule(BaseModule):
         # self.ca = ChannelAttention(in_planes=attn_out_dims[-1], r=4)
         # self.sa = SpatialAttention(kernel_size=3)
 
-    @get_local('attn')
     def forward(self, src):
         if self.pos_shape is None:
             src = self.attn_layers(src)

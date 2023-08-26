@@ -45,6 +45,7 @@ model = dict(
     lane_head=dict(
         anchors_freq_path='./cache/tusimple_anchors_freq.pt',
         topk_anchors=1000,
+        img_size=img_size,
     ),
     test_cfg=dict(
         score_thr=0.2,

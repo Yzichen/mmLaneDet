@@ -108,7 +108,7 @@ model = dict(
     train_cfg=None,
     test_cfg=dict(
         root_thr=1.0,
-        kpt_thr=0.3,
+        kpt_thr=0.4,
         cluster_by_center_thr=4,
         hm_down_scale=8
     )

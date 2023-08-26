@@ -179,110 +179,6 @@ class ROIGather(nn.Module):
         return roi
 
 
-# class ROIGather(nn.Module):
-#     '''
-#     ROIGather module for gather global information
-#     Args:
-#         in_channels: prior feature channels
-#         num_priors: prior numbers we predefined
-#         sample_points: the number of sampled points when we extract feature from line
-#         fc_hidden_dim: the fc output channel
-#         refine_layers: the total number of layers to build refine
-#     '''
-#     def __init__(self,
-#                  in_channels,
-#                  num_priors,
-#                  sample_points,
-#                  fc_hidden_dim,
-#                  refine_layers,
-#                  mid_channels=48):
-#         super(ROIGather, self).__init__()
-#         self.in_channels = in_channels
-#         self.num_priors = num_priors
-#         self.f_key = ConvModule(in_channels=self.in_channels,
-#                                 out_channels=self.in_channels,
-#                                 kernel_size=1,
-#                                 stride=1,
-#                                 padding=0,
-#                                 conv_cfg=dict(type='Conv2d'),
-#                                 norm_cfg=dict(type='BN'))
-#
-#         self.f_query = nn.Sequential(
-#             nn.Conv1d(in_channels=num_priors,
-#                       out_channels=num_priors,
-#                       kernel_size=1,
-#                       stride=1,
-#                       padding=0,
-#                       groups=num_priors),
-#             nn.ReLU(),
-#         )
-#
-#         self.f_value = nn.Conv2d(in_channels=self.in_channels,
-#                                  out_channels=self.in_channels,
-#                                  kernel_size=1,
-#                                  stride=1,
-#                                  padding=0)
-#         self.W = nn.Conv1d(in_channels=num_priors,
-#                            out_channels=num_priors,
-#                            kernel_size=1,
-#                            stride=1,
-#                            padding=0,
-#                            groups=num_priors)
-#
-#         self.resize = FeatureResize()
-#         nn.init.constant_(self.W.weight, 0)
-#         nn.init.constant_(self.W.bias, 0)
-#
-#         self.fc = nn.Linear(sample_points * fc_hidden_dim, fc_hidden_dim)
-#         self.fc_norm = nn.LayerNorm(fc_hidden_dim)
-#
-#
-#     def forward(self, roi_features, x, layer_index):
-#         '''
-#         Args:
-#             roi_features: prior feature, List [(B*num_priors, C, N_sample, 1),  ...], 对应不同FPN level.
-#             x: feature map  (B, C, fH, fW)
-#             layer_index: currently on which layer to refine
-#         Return:
-#             roi: prior features with gathered global information, shape: (B, num_priors, C)
-#         '''
-#         roi = roi_features[layer_index]  # (B*num_priors, C, N_sample, 1)
-#         bs = x.size(0)
-#         roi = roi.contiguous().view(bs * self.num_priors, -1)   # (B*num_priors, C*N_sample)
-#         # (B*num_priors, C*N_sample) --> (B*num_priors, C)
-#         roi = F.relu(self.fc_norm(self.fc(roi)))
-#         # (B*num_priors, C) --> (B, num_priors, C)
-#         roi = roi.view(bs, self.num_priors, -1)
-#
-#         query = roi     # (B, num_priors, C)
-#         # (B, num_priors, C) --> (B, num_priors, C)
-#         query = self.f_query(query)
-#         # query = self.f_query(query.permute(0, 2, 1)).permute(0, 2, 1)
-#
-#         # (B, C, fH, fW) --> (B, C, fH, fW) --> (B, C, 10*25)
-#         value = self.resize(self.f_value(x))
-#         # (B, C, fH, fW) --> (B, C, fH, fW) --> (B, C, 10*25)
-#         key = self.resize(self.f_key(x))
-#
-#         # (B, C, 10*25) --> (B, 10*25, C)
-#         value = value.permute(0, 2, 1)
-#
-#         # (B, num_priors, C) @ (B, C, 10*25) --> (B, num_priors, 10*25)
-#         sim_map = torch.matmul(query, key)
-#         sim_map = (self.in_channels**-.5) * sim_map
-#         sim_map = F.softmax(sim_map, dim=-1)
-#
-#         # (B, num_priors, 10*25) @ (B, 10*25, C) --> (B, num_priors, C)
-#         context = torch.matmul(sim_map, value)
-#         # (B, num_priors, C) --> (B, num_priors, C)
-#         context = self.W(context)
-#
-#         # (B, num_priors, C) + (B, num_priors, C) --> (B, num_priors, C)
-#         roi = roi + F.dropout(context, p=0.1, training=self.training)
-#
-#         return roi
-
-
 class SegDecoder(nn.Module):
     '''
     Optionaly seg decoder
@@ -705,28 +601,6 @@ class CLRHead(BaseDenseHead):
                   tran_tensor(predictions[..., 0])) * self.img_h /
                  torch.tan(tran_tensor(predictions[..., 2]) * math.pi + 1e-5))) / (self.img_w - 1)
 
-            # for vis
-            # bottom_priors_nums = self.num_priors * 3 // 4
-            # left_priors_nums, _ = self.num_priors // 8, self.num_priors // 8
-            # img = np.ones((self.img_h, self.img_w, 3), dtype=np.uint8) * 255
-            # for idx, prior in enumerate(predictions[0]):
-            #     x_s = prior[4:] * (self.img_w - 1)
-            #     y_s = self.prior_ys * self.img_h
-            #
-            #     if idx < left_priors_nums:
-            #         color = (255, 0, 0)
-            #     elif left_priors_nums <= idx < left_priors_nums + bottom_priors_nums:
-            #         color = (0, 255, 0)
-            #     else:
-            #         color = (0, 0, 255)
-            #
-            #     for i in range(1, self.n_offsets):
-            #         cv2.line(img, pt1=(x_s[i-1].int().item(), y_s[i-1].int().item()),
-            #                  pt2=(x_s[i].int().item(), y_s[i].int().item()), color=color, thickness=2)
-            #
-            # cv2.imshow(f"predictions", img)
-            # cv2.waitKey(0)
-
             # 更新后的line priors(考虑start_x、start_y、theta和length的更新)，作为下一个layer的line prior.
             prediction_lines = predictions.clone()      # (B, num_priors, 4+S)
             # (B, num_priors, S)
@@ -788,50 +662,6 @@ class CLRHead(BaseDenseHead):
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        # for vis
-        # predictions = preds_dicts['all_lanes_preds'][-1]
-        # bottom_priors_nums = self.num_priors * 3 // 4
-        # left_priors_nums, _ = self.num_priors // 8, self.num_priors // 8
-        # img = np.ones((self.img_h, self.img_w, 3), dtype=np.uint8) * 255
-        # for idx, prior in enumerate(predictions[0]):
-        #     x_s = prior[4:] * (self.img_w - 1)
-        #     y_s = self.prior_ys * self.img_h
-        #
-        #     if idx < left_priors_nums:
-        #         color = (255, 0, 0)
-        #     elif left_priors_nums <= idx < left_priors_nums + bottom_priors_nums:
-        #         color = (0, 255, 0)
-        #     else:
-        #         color = (0, 0, 255)
-        #
-        #     for i in range(1, self.n_offsets):
-        #         cv2.line(img, pt1=(x_s[i-1].int().item(), y_s[i-1].int().item()),
-        #                  pt2=(x_s[i].int().item(), y_s[i].int().item()), color=color, thickness=2)
-        #
-        # cv2.imshow(f"predictions", img)
-        #
-        # gt_img = np.ones((self.img_h, self.img_w, 3), dtype=np.uint8) * 255
-        # gt_lanes_vis = gt_lanes[0]  # (N_lanes, 4+S)
-        # y_s = self.prior_ys * self.img_h
-        # for lane in gt_lanes_vis:
-        #     # lane: (start_y, start_x, theta, length, coordinates(S))
-        #     if lane[1]:
-        #         start_y = int(lane[0] * self.n_strips)
-        #         length = lane[3]
-        #         end_y = int(start_y + length - 1)
-        #         assert end_y <= self.n_offsets
-        #
-        #         x_s = lane[-self.n_offsets:]
-        #         valid_ys = y_s[start_y:end_y]
-        #         valid_xs = x_s[start_y:end_y]
-        #         color = (255, 0, 0)
-        #         for i in range(1, len(valid_ys)):
-        #             cv2.line(gt_img, pt1=(valid_xs[i - 1].int().item(), valid_ys[i - 1].int().item()),
-        #                      pt2=(valid_xs[i].int().item(), valid_ys[i].int().item()), color=color, thickness=2)
-        #
-        # cv2.imshow(f"gt", gt_img)
-        # cv2.waitKey(0)
-
         # List[(B, num_priors, n_cls), (B, num_priors, n_cls), (B, num_priors, n_cls)]
         all_cls_scores = preds_dicts['all_cls_scores']
         # List[(B, num_priors, 4+S), (B, num_priors, 4+S), (B, num_priors, 4+S)]
@@ -863,24 +693,6 @@ class CLRHead(BaseDenseHead):
             loss_dict[f'd{num_dec_layers}.loss_iou'] = loss_iou_i
             loss_dict[f'd{num_dec_layers}.cls_accuracy'] = cls_accuracy_i
             num_dec_layers += 1
-
-        # loss_dict = dict()
-        # loss_cls = 0
-        # loss_yxtl = 0
-        # loss_iou = 0
-        # # loss from other decoder layers
-        # num_dec_layers = 0
-        # for loss_cls_i, loss_yxtl_i, loss_iou_i, cls_accuracy_i in zip(losses_cls, losses_yxtl, losses_iou,
-        #                                                                cls_accuracy_list):
-        #     loss_cls += loss_cls_i
-        #     loss_yxtl += loss_yxtl_i
-        #     loss_iou += loss_iou_i
-        #     loss_dict[f'd{num_dec_layers}.cls_accuracy'] = cls_accuracy_i
-        #     num_dec_layers += 1
-        #
-        # loss_dict['loss_cls'] = loss_cls / num_dec_layers
-        # loss_dict['loss_yxtl'] = loss_yxtl / num_dec_layers
-        # loss_dict['loss_iou'] = loss_iou / num_dec_layers
 
         if self.with_seg:
             pred_seg = preds_dicts['pred_seg']      # (B, num_class, img_H, img_W)
@@ -1071,62 +883,6 @@ class CLRHead(BaseDenseHead):
             pos_gt_lanes = torch.empty_like(gt_lanes)
         else:
             pos_gt_lanes = gt_lanes[pos_assigned_gt_inds.long(), :]   # (N_pos, 4+S)
-
-        # for vis
-        # img = np.ones((self.img_h, self.img_w, 3), dtype=np.uint8) * 255
-        # y_s = self.prior_ys * (self.img_h - 1)
-        # # lane_preds
-        # # for idx, prior in enumerate(lane_preds):
-        # #     x_s = prior[4:] * (self.img_w - 1)
-        # #     color = (255, 0, 0)
-        # #     for i in range(1, self.n_offsets):
-        # #         cv2.line(img, pt1=(x_s[i-1].int().item(), y_s[i-1].int().item()),
-        # #                  pt2=(x_s[i].int().item(), y_s[i].int().item()), color=color, thickness=2)
-        #
-        # # pos_lane
-        # pos_lane = lane_preds[pos_inds]     # (N_pos, 4+S)
-        # for idx, lane in enumerate(pos_lane):
-        #     x_s = lane[4:] * (self.img_w - 1)
-        #     color = (0, 0, 255)
-        #     for i in range(1, self.n_offsets):
-        #         cv2.line(img, pt1=(x_s[i-1].int().item(), y_s[i-1].int().item()),
-        #                  pt2=(x_s[i].int().item(), y_s[i].int().item()), color=color, thickness=2)
-        #
-        # # gt_lanes
-        # for lane in gt_lanes:
-        #     # gt_lane: (start_y, start_x, theta, length, coordinates(S))
-        #     print(lane)
-        #     start_y = int(lane[0] * self.n_strips)
-        #     length = lane[3]
-        #     end_y = int(start_y + length - 1)
-        #     assert end_y <= self.n_offsets
-        #
-        #     x_s = lane[-self.n_offsets:]
-        #     valid_ys = y_s[start_y:end_y]
-        #     valid_xs = x_s[start_y:end_y]
-        #     color = (0, 255, 0)
-        #     for i in range(1, len(valid_ys)):
-        #         cv2.line(img, pt1=(valid_xs[i - 1].int().item(), valid_ys[i - 1].int().item()),
-        #                  pt2=(valid_xs[i].int().item(), valid_ys[i].int().item()), color=color, thickness=2)
-        #
-        # # pos_gt_lanes
-        # # for lane in pos_gt_lanes:
-        # #     # lane: (start_y, start_x, theta, length, coordinates(S))
-        # #     start_y = int(lane[0] * self.n_strips)
-        # #     length = lane[3]
-        # #     end_y = int(start_y + length - 1)
-        # #     assert end_y <= self.n_offsets
-        # #
-        # #     x_s = lane[-self.n_offsets:]
-        # #     valid_ys = y_s[start_y:end_y]
-        # #     valid_xs = x_s[start_y:end_y]
-        # #     color = (0, 255, 255)
-        # #     for i in range(1, len(valid_ys)):
-        # #         cv2.line(img, pt1=(valid_xs[i - 1].int().item(), valid_ys[i - 1].int().item()),
-        # #                  pt2=(valid_xs[i].int().item(), valid_ys[i].int().item()), color=color, thickness=2)
-        #
-        # cv2.imshow("pos and gt", img)
-        # cv2.waitKey(0)
 
         # label targets
         # 默认为bg

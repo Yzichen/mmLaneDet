@@ -204,48 +204,6 @@ class SCNNHead(BaseDenseHead):
             results_list.append(pred)
         return results_list
 
-    # def predictions_to_pred(self, probmaps, exists, img_meta):
-    #     """
-    #     :param probmaps: (max_num_lanes, H, W)
-    #     :param exists: (max_num_lanes, )   bool
-    #     :param img_meta:
-    #     :return:
-    #         lanes: List[lane0, lane1, ...]
-    #     """
-    #     ori_height, ori_width = img_meta['ori_shape'][:2]
-    #     crop = img_meta.get('crop', (0, 0, 0, 0))  # (x_min, y_min, x_max, y_max)
-    #     y_min = crop[1]
-    #
-    #     lanes = []
-    #     if exists is None:
-    #         exists = [True for _ in probmaps]
-    #     for probmap, exist in zip(probmaps, exists):
-    #         if not exist:
-    #             continue
-    #         probmap = probmap.cpu().numpy()
-    #         probmap = cv2.blur(probmap, (9, 9), borderType=cv2.BORDER_REPLICATE)
-    #
-    #         coord = []
-    #         for y in self.prior_ys:
-    #             proj_y = round((self.img_h - 1) * y.item())
-    #             line = probmap[proj_y]
-    #             if np.max(line) < self.test_cfg['seg_score_thr']:
-    #                 continue
-    #             value = np.argmax(line)
-    #             x = value * ori_width / self.img_w
-    #             if x >= 0:
-    #                 y = y.item() * ((ori_height - 1) - y_min) + y_min
-    #                 coord.append([x, y])
-    #         if len(coord) < self.test_cfg['min_num_lanes']:
-    #             continue
-    #
-    #         coord = np.array(coord)
-    #         coord[:, 0] /= ori_width
-    #         coord[:, 1] /= ori_height
-    #         lanes.append(Lane(coord))
-    #
-    #     return lanes
-
     def predictions_to_pred(self, probmaps, exists, img_meta):
         """
         :param probmaps: (max_num_lanes, H, W)

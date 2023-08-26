@@ -33,6 +33,10 @@ pytorch == 1.9.1 \
 mmcv-full == 1.5.1 \
 mmdet == 2.25.0 
 
+```Shell
+python setup.py develop
+```
+
 ### Data  Preparation
 #### Tusimple
 Download [Tusimple](https://github.com/TuSimple/tusimple-benchmark/issues/3).  Then extract them to `$TUSIMPLEROOT`. Create link to `data` directory.

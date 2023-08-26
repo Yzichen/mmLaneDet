@@ -87,16 +87,16 @@ def imshow_det_lanes(img,
                      lineType=cv2.LINE_AA)
 
         if isinstance(lanes[0], Lane) and 'conf' in lanes[idx].metadata:
-            conf = lanes[idx].metadata['conf']
+            conf = lanes[sorted_id[idx]].metadata['conf']
             start_point = xys[0]
             cv2.putText(img, f'{conf:.2f}', (start_point[0]+20, start_point[1]-5), fontFace=cv2.FONT_HERSHEY_COMPLEX,
                         fontScale=1, color=lane_color if lane_color is not None else COLORS[idx], thickness=thickness)
 
         if meta_datas is not None:
-            conf = meta_datas[idx]['conf']
+            conf = meta_datas[sorted_id[idx]]['conf']
             start_point = xys[0]
             cv2.putText(img, f'{conf:.2f}', (start_point[0]+20, start_point[1]-5), fontFace=cv2.FONT_HERSHEY_COMPLEX,
-                        fontScale=1, color=lane_color if lane_color is not None else COLORS[idx], thickness=2)
+                        fontScale=1, color=lane_color if lane_color is not None else COLORS[idx], thickness=thickness)
 
     if show:
         cv2.imshow(win_name, img)

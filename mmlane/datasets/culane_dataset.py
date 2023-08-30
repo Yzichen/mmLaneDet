@@ -180,14 +180,14 @@ class CuLaneDataset(BaseDataset):
         culane_pred_dir, tmp_dir = self.format_results(results, jsonfile_prefix=jsonfile_prefix)
 
         ret_dict = {}
-        # for cate, cate_file in CATEGORYS.items():
-        #     result = culane_metric.eval_predictions(culane_pred_dir,
-        #                                             self.data_root,
-        #                                             os.path.join(self.data_root, cate_file),
-        #                                             iou_thresholds=[0.5],
-        #                                             official=True,
-        #                                             logger=logger)
-        #     ret_dict[f'{cate}_F1@50'] = result[0.5]['F1']
+        for cate, cate_file in CATEGORYS.items():
+            result = culane_metric.eval_predictions(culane_pred_dir,
+                                                    self.data_root,
+                                                    os.path.join(self.data_root, cate_file),
+                                                    iou_thresholds=[0.5],
+                                                    official=True,
+                                                    logger=logger)
+            ret_dict[f'{cate}_F1@50'] = result[0.5]['F1']
 
         result = culane_metric.eval_predictions(culane_pred_dir,
                                                 self.data_root,

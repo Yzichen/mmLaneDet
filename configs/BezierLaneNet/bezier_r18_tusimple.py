@@ -11,11 +11,11 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 
 img_size = (640, 360)
-order = 4
+order = 3  # default 3
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='LoadLaneAnnotations', with_lane=True, with_seg=True, with_lane_exist=False, seg_classs_agnostic=False),
+    dict(type='LoadLaneAnnotations', with_lane=True, with_seg=True, with_lane_exist=False, seg_classs_agnostic=True),
     dict(type='Lanes2ControlPoints', order=order),
     dict(type='FixedCrop', crop=(0, 160, 1280, 720)),
     dict(type='RandomFlip', flip_ratio=0.5),
@@ -44,13 +44,32 @@ test_pipeline = [
     )
 ]
 
+window_size = 9
 model = dict(
     lane_head=dict(
         feature_size=(23, 40),
+        order=order,
         with_seg=False
+    ),
+    # model training and testing settings
+    train_cfg=dict(
+        assigner=dict(
+            type='BezierHungarianAssigner',
+            order=order,
+            num_sample_points=100,
+            alpha=0.8,
+            window_size=window_size
+        )
+    ),
+    test_cfg=dict(
+        score_thr=0.4,
+        window_size=window_size,
+        max_lanes=5,
+        num_sample_points=50,
+        dataset='tusimple'
     )
-)
 
+)
 
 # SPLIT_FILES = {
 #     'trainval': ['label_data_0313.json', 'label_data_0601.json', 'label_data_0531.json'],
@@ -58,7 +77,6 @@ model = dict(
 #     'val': ['label_data_0531.json'],
 #     'test': ['test_label.json'],
 # }
-
 
 data = dict(
     samples_per_gpu=8,
@@ -107,6 +125,6 @@ lr_config = dict(
 total_epochs = 400
 runner = dict(type='EpochBasedRunner', max_epochs=total_epochs)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
-evaluation = dict(interval=10)
+evaluation = dict(start=350, interval=10)
 load_from=None
 resume_from=None

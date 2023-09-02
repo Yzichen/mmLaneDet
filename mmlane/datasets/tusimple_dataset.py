@@ -145,18 +145,22 @@ class TusimpleDataset(BaseDataset):
 
     def results2json(self, predictions, outfile_prefix):
         def pred_to_lane(pred):
-            ys = np.array(self.h_samples) / self.img_h
             out = []
-            for lane in pred:
-                xs = lane(ys)
-                valid_mask = (xs >= 0) & (xs < 1)
-                xs = xs * self.img_w
-                lane_xs = xs[valid_mask]
-                lane_ys = ys[valid_mask] * self.img_h
-                lane_xs, lane_ys = lane_xs[::-1], lane_ys[::-1]
-                lane = [(x, y) for x, y in zip(lane_xs, lane_ys)]
-                if len(lane) >= 2:
-                    out.append(lane)
+            if len(pred) and isinstance(pred[0], Lane):
+                ys = np.array(self.h_samples) / self.img_h
+                for lane in pred:
+                    xs = lane(ys)
+                    valid_mask = (xs >= 0) & (xs < 1)
+                    xs = xs * self.img_w
+                    lane_xs = xs[valid_mask]
+                    lane_ys = ys[valid_mask] * self.img_h
+                    lane_xs, lane_ys = lane_xs[::-1], lane_ys[::-1]
+                    lane = [(x, y) for x, y in zip(lane_xs, lane_ys)]
+                    if len(lane) >= 2:
+                        out.append(lane)
+            else:
+                for lane in pred:
+                    out.append(lane.tolist())
             return out
 
         def extract_metadatas(pred):
@@ -173,7 +177,8 @@ class TusimpleDataset(BaseDataset):
                 data['pred_lane'] = pred_lane
                 data['img_name'] = self.data_infos[idx]['img_name']
 
-                if pred[0].metadata.get('anchor', None) is not None:
+                if len(pred) > 0 and isinstance(pred[0], Lane) and \
+                        pred[0].metadata.get('anchor', None) is not None:
                     metadatas = extract_metadatas(pred)
                     data['meta_datas'] = metadatas
 

@@ -10,12 +10,12 @@ data_root = 'data/culane'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 
-img_size = (800, 320)
-order = 4
+img_size = (800, 288)
+order = 3
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='LoadLaneAnnotations', with_lane=True, with_seg=True, with_lane_exist=False, seg_classs_agnostic=False),
+    dict(type='LoadLaneAnnotations', with_lane=True, with_seg=True, with_lane_exist=False, seg_classs_agnostic=True),
     dict(type='Lanes2ControlPoints', order=order),
     dict(type='FixedCrop', crop=(0, 270, 1640, 590)),
     dict(type='RandomFlip', flip_ratio=0.5),
@@ -44,11 +44,13 @@ test_pipeline = [
     )
 ]
 
+window_size = 9
 model = dict(
     type='BezierLaneNet',
     lane_head=dict(
-        feature_size=(20, 50),
-        with_seg=False,
+        order=order,
+        feature_size=(18, 50),
+        with_seg=True,
     ),
     # model training and testing settings
     train_cfg=dict(
@@ -56,14 +58,16 @@ model = dict(
             type='BezierHungarianAssigner',
             order=order,
             num_sample_points=100,
-            alpha=0.8
+            alpha=0.8,
+            window_size=window_size
         )
     ),
     test_cfg=dict(
-        score_thr=0.5,
-        window_size=0,
+        score_thr=0.95,
+        window_size=window_size,
         max_lanes=4,
         num_sample_points=50,
+        dataset='culane'
     )
 )
 
@@ -116,6 +120,6 @@ lr_config = dict(
 total_epochs = 36
 runner = dict(type='EpochBasedRunner', max_epochs=total_epochs)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
-evaluation = dict(interval=1)
+evaluation = dict(start=30, interval=1)
 load_from=None
 resume_from=None

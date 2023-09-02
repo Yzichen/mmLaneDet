@@ -66,11 +66,11 @@ class BezierHead(BaseDenseHead):
                  num_classes=1,
                  seg_num_classes=1,
                  loss_cls=dict(
-                     type='FocalLoss',
+                     type='CrossEntropyLoss',
                      use_sigmoid=True,
-                     gamma=2.0,
-                     alpha=0.25,
-                     loss_weight=2.0
+                     class_weight=1.0/0.4,
+                     reduction='mean',
+                     loss_weight=0.1
                  ),
                  loss_reg=dict(
                      type='L1Loss',
@@ -79,11 +79,11 @@ class BezierHead(BaseDenseHead):
                  ),
                  loss_seg=dict(
                      type='CrossEntropyLoss',
-                     use_sigmoid=False,
+                     use_sigmoid=True,
                      ignore_index=255,
-                     class_weight=1.0,
-                     bg_cls_weight=0.4,
-                     loss_weight=0.1
+                     class_weight=1.0/0.4,
+                     reduction='mean',
+                     loss_weight=0.75
                  ),
                  sync_cls_avg_factor=True,
                  train_cfg=dict(
@@ -143,22 +143,9 @@ class BezierHead(BaseDenseHead):
         self.sync_cls_avg_factor = sync_cls_avg_factor
         class_weight = loss_cls.get('class_weight', None)
         if class_weight is not None and (self.__class__ is BezierHead):
-            assert isinstance(class_weight, float), 'Expected ' \
-                                                    'class_weight to have type float. Found ' \
-                                                    f'{type(class_weight)}.'
-            bg_cls_weight = loss_cls.get('bg_cls_weight', class_weight)
-            assert isinstance(bg_cls_weight, float), 'Expected ' \
-                                                     'bg_cls_weight to have type float. Found ' \
-                                                     f'{type(bg_cls_weight)}.'
-            class_weight = torch.ones(num_classes + 1) * class_weight
-            # set background class as the last indice
-            class_weight[num_classes] = bg_cls_weight
-            loss_cls.update({'class_weight': class_weight})
-            if 'bg_cls_weight' in loss_cls:
-                loss_cls.pop('bg_cls_weight')
-            self.bg_cls_weight = bg_cls_weight
-        self.loss_cls = build_loss(loss_cls)
+           self.cls_pos_weight = class_weight
 
+        self.loss_cls = build_loss(loss_cls)
         self.loss_reg = build_loss(loss_reg)
 
         self.with_seg = with_seg
@@ -168,7 +155,6 @@ class BezierHead(BaseDenseHead):
                 self.seg_out_channels = seg_num_classes
             else:
                 self.seg_out_channels = seg_num_classes + 1
-            self.seg_bg_cls_weight = 0
 
             self.seg_decoder = SimpleSegHead(in_channels=in_channels,
                                              mid_channels=in_channels,
@@ -176,16 +162,7 @@ class BezierHead(BaseDenseHead):
 
             class_weight = loss_seg.get('class_weight', None)
             if class_weight is not None:
-                class_weight = torch.ones(seg_num_classes + 1) * class_weight
-                bg_cls_weight = loss_seg.get('bg_cls_weight', class_weight)
-                assert isinstance(bg_cls_weight, float), 'Expected ' \
-                                                         'bg_cls_weight to have type float. Found ' \
-                                                         f'{type(bg_cls_weight)}.'
-                class_weight[0] = bg_cls_weight  # 这里0是bg, 而mmdet系列是num_class是bg.
-                loss_seg.update({'class_weight': class_weight})
-                if 'bg_cls_weight' in loss_seg:
-                    loss_seg.pop('bg_cls_weight')
-                self.seg_bg_cls_weight = bg_cls_weight
+                self.seg_pos_weight = class_weight
             self.loss_seg = build_loss(loss_seg)
             self.seg_ignore_index = loss_seg.get('ignore_index', 255)
 
@@ -299,19 +276,13 @@ class BezierHead(BaseDenseHead):
         control_points_weights = torch.cat(control_points_weights_list, 0)      # (B*N_q, )
 
         loss_dict = dict()
-        # 1. classification loss
+        # 1. classification loss  bce loss
         cls_scores = cls_logits.view(-1, cls_logits.shape[-1])      # (B*N_q, n_cls=1)
-        cls_avg_factor = num_total_pos * 1.0 + num_total_neg * self.bg_cls_weight
-        if self.sync_cls_avg_factor:
-            cls_avg_factor = reduce_mean(
-                cls_scores.new_tensor([cls_avg_factor]))
-        cls_avg_factor = max(cls_avg_factor, 1.0)
-
         loss_cls = self.loss_cls(
             cls_scores,      # (B*num_priors, n_cls)
             labels,          # (B*num_priors, )
-            label_weights,   # (B*num_priors, )
-            avg_factor=cls_avg_factor)
+            label_weights * 1/self.cls_pos_weight,   # (B*num_priors, )
+            )
         loss_dict['loss_cls'] = loss_cls
 
         # 2. regression loss
@@ -336,22 +307,16 @@ class BezierHead(BaseDenseHead):
         loss_dict['loss_reg'] = loss_reg
 
         if self.with_seg:
-            pred_seg = preds_dicts['pred_seg']      # (B, num_class, img_H, img_W)
+            pred_seg = preds_dicts['pred_seg']      # (B, num_class=1, img_H, img_W)
             gt_semantic_seg = gt_semantic_seg.squeeze(dim=1).long()      # (B, img_H, img_W)
-            num_total_pos = (torch.logical_and(gt_semantic_seg > 0, gt_semantic_seg != self.seg_ignore_index)).sum()
-            num_total_neg = (gt_semantic_seg == 0).sum()
-            cls_avg_factor = num_total_pos * 1.0 + \
-                             num_total_neg * self.seg_bg_cls_weight
-            if self.sync_cls_avg_factor:
-                cls_avg_factor = reduce_mean(
-                    pred_seg.new_tensor([cls_avg_factor]))
-
             pred_seg = torch.nn.functional.interpolate(pred_seg, size=gt_semantic_seg.shape[-2:],
                                                        mode='bilinear', align_corners=True)
+            pred_seg = pred_seg.squeeze(dim=1)      # (B, img_H, img_W)
+
             loss_seg = self.loss_seg(
                 pred_seg,
                 gt_semantic_seg,
-                avg_factor=cls_avg_factor
+                1 / self.seg_pos_weight,   # (B*num_priors, )
             )
 
             loss_dict['loss_seg'] = loss_seg

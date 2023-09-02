@@ -1,5 +1,5 @@
 # model settings
-order = 4
+order = 3
 
 model = dict(
     type='BezierLaneNet',
@@ -33,13 +33,13 @@ model = dict(
         order=order,
         with_seg=True,
         num_classes=1,
-        seg_num_classes=6,
+        seg_num_classes=1,
         loss_cls=dict(
-            type='FocalLoss',
+            type='CrossEntropyLoss',
             use_sigmoid=True,
-            gamma=2.0,
-            alpha=0.25,
-            loss_weight=2.0
+            class_weight=1.0 / 0.4,
+            reduction='mean',
+            loss_weight=0.1
         ),
         loss_reg=dict(
             type='L1Loss',
@@ -48,11 +48,10 @@ model = dict(
         ),
         loss_seg=dict(
             type='CrossEntropyLoss',
-            use_sigmoid=False,
+            use_sigmoid=True,
             ignore_index=255,
-            class_weight=1.0,
-            bg_cls_weight=0.4,
-            loss_weight=0.1,
+            class_weight=1.0 / 0.4,
+            loss_weight=0.75,
             reduction='mean',
         ),
     ),
@@ -70,6 +69,5 @@ model = dict(
         window_size=0,
         max_lanes=5,
         num_sample_points=50,
-        dataset='tusimple'
     )
 )

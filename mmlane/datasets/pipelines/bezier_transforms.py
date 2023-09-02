@@ -12,7 +12,7 @@ from .formating import to_tensor
 
 @PIPELINES.register_module()
 class Lanes2ControlPoints:
-    def __init__(self, order=3, interpolate=False, fix_endpoints=True):
+    def __init__(self, order=3, interpolate=False, fix_endpoints=False):
         self.num_points = order + 1
         self.interpolate = interpolate
         self.fix_endpoints = fix_endpoints
@@ -58,9 +58,9 @@ class Lanes2ControlPoints:
         # img = results['img'].copy()
         # gt_lanes = interpolate_lanes
         # for lane in gt_lanes:
-        #     for i in range(len(lane)):
+        #     for i in range(len(lane) - 1):
         #         point0 = (int(lane[i][0]), int(lane[i][1]))
-        #         point1 = (int(lane[i][0]), int(lane[i][1]))
+        #         point1 = (int(lane[i+1][0]), int(lane[i+1][1]))
         #         cv2.line(img, point0, point1, color=(255, 0, 0), thickness=5)
         #
         # for lane_id in range(len(control_points_list)):
@@ -69,7 +69,7 @@ class Lanes2ControlPoints:
         #         p = cur_control_points[i]
         #         cv2.circle(img, center=(int(p[0]), int(p[1])), radius=3, color=(0, 0, 255), thickness=-1)
         #
-        # cv2.imwrite("control_points.png", img)
+        # cv2.imwrite("control_points1.png", img)
 
         return results
 
@@ -224,9 +224,9 @@ class GenerateBezierInfo:
         # sample_points = self.denormalize_points(sample_points, (h, w))
         # for lane_id in range(len(sample_points)):
         #     cur_sample_points = sample_points[lane_id]  # (N_sample_points, 2)
-        #     for i in range(len(cur_sample_points)):
+        #     for i in range(len(cur_sample_points)-1):
         #         p1 = (int(cur_sample_points[i][0]), int(cur_sample_points[i][1]))
-        #         p2 = (int(cur_sample_points[i][0]), int(cur_sample_points[i][1]))
+        #         p2 = (int(cur_sample_points[i+1][0]), int(cur_sample_points[i+1][1]))
         #         cv2.line(img, p1, p2, color=(255, 0, 0), thickness=3, lineType=cv2.LINE_AA)
         #
         # control_points = self.denormalize_points(control_points, (h, w))

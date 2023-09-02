@@ -9,10 +9,11 @@ from mmdet.core import AssignResult
 
 @Lane_ASSIGNERS.register_module()
 class BezierHungarianAssigner(BaseAssigner):
-    def __init__(self, order=3, num_sample_points=100, alpha=0.8):
+    def __init__(self, order=3, num_sample_points=100, alpha=0.8, window_size=0):
         self.num_sample_points = num_sample_points
         self.alpha = alpha
         self.bezier_curve = BezierCurve(order=order)
+        self.window_size = window_size
 
     def assign(self, cls_logits, pred_control_points, gt_control_points, gt_labels):
         """
@@ -41,8 +42,20 @@ class BezierHungarianAssigner(BaseAssigner):
         # 2. compute the costs
         # cls_cost
         cls_score = cls_logits.sigmoid()    # (N_q, n_cls=1)
+
+        # Local maxima prior
+        if self.window_size > 0:
+            _, max_indices = torch.nn.functional.max_pool1d(cls_score.unsqueeze(0).permute(0, 2, 1),
+                                                            kernel_size=self.window_size, stride=1,
+                                                            padding=(self.window_size - 1) // 2, return_indices=True)
+            max_indices = max_indices.squeeze()   # (N_q, )
+            indices = torch.arange(0, N_q, dtype=cls_score.dtype, device=cls_score.device)
+            local_maxima = (max_indices == indices)     # (N_q)
+        else:
+            local_maxima = cls_score.new_ones((N_q, ))
+
         cls_score = cls_score.squeeze(dim=1)     # (N_q, )
-        cls_cost = cls_score.unsqueeze(dim=1).repeat(1, N_gt)   # (N_q, N_gt)
+        cls_cost = (local_maxima * cls_score).unsqueeze(dim=1).repeat(1, N_gt)   # (N_q, N_gt)
 
         # curve sampling cost
         # (N_q, N_sample_points, 2)
@@ -76,5 +89,3 @@ class BezierHungarianAssigner(BaseAssigner):
         assigned_labels[matched_row_inds] = gt_labels[matched_col_inds]
 
         return assigned_gt_inds, assigned_labels
-
-

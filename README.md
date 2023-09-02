@@ -88,17 +88,19 @@ bash tools/dist_test.sh /path_to_your_config /path_to_your_pth 8 --eval mAP
 
 ## Results
 ### Results on Tusimple
-|     Model     | Setting |  BatchSize  |  Lr Schd   |  Acc  |  F1   | Config | Download |
-|:-------------:|:-------:|:-----------:|:----------:|:-----:|:-----:| :---: |:--------:|
+|     Model     | Setting |  BatchSize  |  Lr Schd   |  Acc  |  F1   | Config |                                                                                          Download                                                                                         |
+|:-------------:|:-------:|:-----------:|:----------:|:-----:|:-----:| :---: |:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |    LaneATT    |   r18   | 4(gpus) * 8 | 100 epochs | 95.85 | 96.69 | [config](configs/laneatt/laneatt_r18_tusimple.py) | [model](https://drive.google.com/file/d/1wwiUsUhibLfOEI-os_Nr6yr2LexsgD8Y/view?usp=drive_link)/[log](https://drive.google.com/file/d/1o8vD-F4nYVUzQXmDbzIR786Qo-YiejFF/view?usp=drive_link) |
 |    CLRNet     |   r18   | 4(gpus) * 8 | 70 epochs  | 96.81 | 97.63 | [config](configs/clrnet/clrnet_r18_tusimple.py) | [model](https://drive.google.com/file/d/1mWamlpwjfudb80iMyiqaEqJSqDZf0Ljd/view?usp=drive_link)/[log](https://drive.google.com/file/d/1BlFAgBmd3aOjCqX7Dd9po1fY5dctlLfn/view?usp=drive_link) |
-| BezierLaneNet |   r18   | 4(gpus) * 8 | 400 epochs | 96.00 | 96.16 | [config](configs/BezierLaneNet/bezier_r18_tusimple.py) | [model](https://drive.google.com/file/d/1KpcLh7hMvJDverCbgAtCx4bDDgNBtxcD/view?usp=drive_link)/[log](https://drive.google.com/file/d/1QKKm2Ga5ZmoT8TaeCjhpZdXhGeCV7m6y/view?usp=drive_link) | 
+| BezierLaneNet |   r18   | 4(gpus) * 8 | 400 epochs | 95.79 | 96.24 | [config](configs/BezierLaneNet/bezier_r18_tusimple.py) |[model](https://drive.google.com/file/d/12M3ujXg2Bf4BNZ2uPb1KnhiJZ80VVkYS/view?usp=drive_link)/[log](https://drive.google.com/file/d/1589WAqvcIeQ0V_Hl_qWE71EWoJb6VqCL/view?usp=drive_link)| 
 |    GANet      |   r18   | 4(gpus) * 8 | 70 epochs | 95.99 | 97.23 | [config](configs/ganet/ganet_r18_tusimple.py) | [model](https://drive.google.com/file/d/15Q1cJxJ4xzXoSfKdZd8vKOAOgKBzRamf/view?usp=drive_link)/[log](https://drive.google.com/file/d/1uGIPfs6kjjO5Ti8DQPBn0917LreQLuRZ/view?usp=drive_link) | 
+
 ### Results on CuLane
-|  Model   | Setting |  BatchSize  |  Lr Schd  | F1@50 | F1@75 |  mF1  |                    Config                     | Download |
-|:--------:| :---:   |:-----------:|:---------:|:-----:|:-----:|:-----:|:---------------------------------------------:|:---:|
-|  CLRNet  | r18| 4(gpus) * 8 | 15 epochs | 79.09 | 62.11 | 54.92 | [config](configs/clrnet/clrnet_r18_culane.py) | [model](https://drive.google.com/file/d/1BrK42iR00GxN-fa4LF5S2E44V_PlIbPI/view?usp=drive_link)/[log](https://drive.google.com/file/d/1wZH6379PcJ5XlGNzxTgAMLKzsF6dDzb8/view?usp=drive_link)|
-| CondLane | r18| 2(gpus) * 4 | 16 epochs | 77.99 | 57.48 | 51.42 | [config](configs/condlane/condlane_r18_culane.py) | [model](https://drive.google.com/file/d/1E6tq8QmHTU9uEhlMT8c6FXbIwzOnY2uv/view?usp=drive_link)/[log](https://drive.google.com/file/d/1bNZLSY84yV1xIw4ZrMl9zsoNTnQy8B-5/view?usp=drive_link)|
+|  Model   | Setting |  BatchSize  |  Lr Schd  | F1@50 | F1@75 |  mF1  |                        Config                        |                                                                                           Download                                                                                           |
+|:--------:| :---:   |:-----------:|:---------:|:-----:|:-----:|:-----:|:----------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|  CLRNet  | r18| 4(gpus) * 8 | 15 epochs | 79.09 | 62.11 | 54.92 |    [config](configs/clrnet/clrnet_r18_culane.py)     | [model](https://drive.google.com/file/d/1BrK42iR00GxN-fa4LF5S2E44V_PlIbPI/view?usp=drive_link)/[log](https://drive.google.com/file/d/1wZH6379PcJ5XlGNzxTgAMLKzsF6dDzb8/view?usp=drive_link)  |
+| CondLane | r18| 2(gpus) * 4 | 16 epochs | 77.99 | 57.48 | 51.42 |  [config](configs/condlane/condlane_r18_culane.py)   | [model](https://drive.google.com/file/d/1E6tq8QmHTU9uEhlMT8c6FXbIwzOnY2uv/view?usp=drive_link)/[log](https://drive.google.com/file/d/1bNZLSY84yV1xIw4ZrMl9zsoNTnQy8B-5/view?usp=drive_link)  |
+| BezierLaneNet | r18| 4(gpus) * 8 | 36 epochs | 73.11 | 44.43 | 42.41 | [config](configs/BezierLaneNet/bezier_r18_culane.py) | [model](https://drive.google.com/file/d/1OIEs4eSKjF5uczVY5l-5GaKCS33QrllQ/view?usp=drive_link)/[log](https://drive.google.com/file/d/15RsMu3BjqShwcfG-S9PJsMKkpNYlmeXs/view?usp=drive_link)  |
 
 ### Results on LLAMAS(val)
 | Model | Setting |  BatchSize  |  Lr Schd  | F1@50 | F1@75 |  mF1  |                    Config                     | Download |

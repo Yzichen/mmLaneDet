@@ -118,7 +118,8 @@ https://github.com/Yzichen/mmLaneDet/assets/54573533/35a053fb-2fa4-4b62-9250-c06
 
 
 ## Acknowledgement
-Many thanks to the authors of [mmdetection](https://github.com/open-mmlab/mmdetection) and [lanedet](https://github.com/Turoad/lanedet) .
+Many thanks to the authors of [mmdetection](https://github.com/open-mmlab/mmdetection), [lanedet](https://github.com/Turoad/lanedet)
+and [pytorch-auto-drive](https://github.com/voldemortX/pytorch-auto-drive).
 
 ## Citation
 

@@ -35,7 +35,7 @@ model = dict(
             use_sigmoid=False,
             class_weight=1.0,
             bg_cls_weight=0.4,
-            loss_weight=1.0
+            loss_weight=3.0
         ),
     ),
     test_cfg=dict(

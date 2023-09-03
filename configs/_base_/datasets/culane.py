@@ -2,7 +2,7 @@
 dataset_type = 'CuLaneDataset'
 data_root = 'data/culane'
 img_norm_cfg = dict(
-    mean=[255, 255, 255], std=[1, 1, 1], to_rgb=False)
+    mean=[0, 0, 0], std=[255, 255, 255], to_rgb=False)
 
 img_size = (800, 320)
 

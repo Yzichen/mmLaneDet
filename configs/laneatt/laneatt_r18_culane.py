@@ -8,14 +8,14 @@ _base_ = [
 dataset_type = 'CuLaneDataset'
 data_root = 'data/culane'
 img_norm_cfg = dict(
-    mean=[255, 255, 255], std=[1, 1, 1], to_rgb=False)
+    mean=[0, 0, 0], std=[255.0, 255.0, 255.0], to_rgb=False)
 
 img_size = (640, 360)
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadLaneAnnotations', with_lane=True, with_seg=True, with_lane_exist=True, seg_classs_agnostic=False),
-    dict(type='FixedCrop', crop=(0, 270, 1640, 590)),
+    # dict(type='FixedCrop', crop=(0, 270, 1640, 590)),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='albumentation', pipelines=[
         dict(type='Compose', params=dict(bboxes=False, keypoints=True, masks=False)),
@@ -63,7 +63,7 @@ train_pipeline = [
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='FixedCrop', crop=(0, 270, 1640, 590)),
+    # dict(type='FixedCrop', crop=(0, 270, 1640, 590)),
     dict(
         type='MultiScaleFlipAug',
         img_scale=img_size,

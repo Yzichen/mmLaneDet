@@ -113,9 +113,20 @@ I don't have enough time to do all the experiments and optimize the parameters, 
 I would like to have partners on board to help optimize this project.
 
 ## DALNet
-code will be released.
+### Results on DL-Rail
+|     Model     | Setting |  BatchSize  |  Lr Schd   | F1@50 | F1@75 |  mF1  |    
+|:-------------:| :---:   |:-----------:|:----------:|:-----:|:-----:|:-----:|
+| BezierLaneNet | r18| 4(gpus) * 8 | 400 epochs | 85.13 | 38.62 | 42.81 |  
+|     GANet     | r18| 4(gpus) * 8 | 70 epochs  | 95.68 | 62.01 | 57.64 |  
+| CondaLaneNet  | r18| 4(gpus) * 8 | 70 epochs  | 95.10 | 53.10 | 52.37 |
+|     UFLD      | r18| 4(gpus) * 8 | 70 epochs  | 93.67 | 57.74 | 53.50 |
+|    LaneATT    | r18| 4(gpus) * 8 | 70 epochs  | 93.82 | 58.97 | 55.57 |
+|    DALNet     | r18| 4(gpus) * 8 | 70 epochs  | 96.43 | 65.48 | 59.79 |
 
-https://github.com/Yzichen/mmLaneDet/assets/54573533/35a053fb-2fa4-4b62-9250-c06ec28a09f9
+### Rail Detection and Intrusion Detection Demo
+[//]: # (https://github.com/Yzichen/mmLaneDet/assets/54573533/35a053fb-2fa4-4b62-9250-c06ec28a09f9)
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/y-Qqc83z0as/0.jpg)](https://youtu.be/y-Qqc83z0as)
 
 
 ## Acknowledgement

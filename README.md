@@ -123,11 +123,17 @@ I would like to have partners on board to help optimize this project.
 |    LaneATT    | r18| 4(gpus) * 8 | 70 epochs  | 93.82 | 58.97 | 55.57 |
 |    DALNet     | r18| 4(gpus) * 8 | 70 epochs  | 96.43 | 65.48 | 59.79 |
 
-### Rail Detection and Intrusion Detection Demo
+### Demo
 [//]: # (https://github.com/Yzichen/mmLaneDet/assets/54573533/35a053fb-2fa4-4b62-9250-c06ec28a09f9)
-
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/y-Qqc83z0as/0.jpg)](https://youtu.be/y-Qqc83z0as)
-
+#### Youtube/BiliBili                                                    
+<div style="display: flex; justify-content: space-between;">
+  <a href="https://youtu.be/y-Qqc83z0as" target="_blank">
+    <img src=figs/examp1.png alt="Youtube" width="45%">
+  </a>
+  <a href="https://www.bilibili.com/video/BV1kc411k7ji?t=12.4" target="_blank">
+    <img src=figs/examp1.png alt="bilibili " width="45%">
+  </a>
+</div>
 
 ## Acknowledgement
 Many thanks to the authors of [mmdetection](https://github.com/open-mmlab/mmdetection), [lanedet](https://github.com/Turoad/lanedet)

@@ -172,8 +172,8 @@ class RailDataset(BaseDataset):
             lane_str = [
                 '{:.5f} {:.5f}'.format(x, y) for x, y in zip(lane_xs, lane_ys)
             ]
-            conf = lane.metadata['conf']
-            lane_str.insert(0, '{:.3f}'.format(conf))
+            # conf = lane.metadata['conf']
+            # lane_str.insert(0, '{:.3f}'.format(conf))
 
             lane_str = ' '.join(lane_str)
             if lane_str != '':
@@ -194,15 +194,15 @@ class RailDataset(BaseDataset):
         culane_pred_dir, tmp_dir = self.format_results(results, jsonfile_prefix=jsonfile_prefix)
 
         ret_dict = {}
-        for cate, cate_file in CATEGORYS.items():
-            result = rail_metric.eval_predictions(culane_pred_dir,
-                                                    self.data_root,
-                                                    os.path.join(self.data_root, cate_file),
-                                                    iou_thresholds=[0.5],
-                                                    official=True,
-                                                    logger=logger,
-                                                    img_shape=(1080, 1920, 3))
-            ret_dict[f'{cate}_F1@50'] = result[0.5]['F1']
+        # for cate, cate_file in CATEGORYS.items():
+        #     result = rail_metric.eval_predictions(culane_pred_dir,
+        #                                             self.data_root,
+        #                                             os.path.join(self.data_root, cate_file),
+        #                                             iou_thresholds=[0.5],
+        #                                             official=True,
+        #                                             logger=logger,
+        #                                             img_shape=(1080, 1920, 3))
+        #     ret_dict[f'{cate}_F1@50'] = result[0.5]['F1']
 
         result = rail_metric.eval_predictions(culane_pred_dir,
                                                 self.data_root,

@@ -6,7 +6,7 @@ _base_ = [
 plugin = True
 plugin_dir = 'projects/mmlane_plugin/'
 
-dataset_type = 'DlRailDataset'
+dataset_type = 'RailDataset'
 data_root = 'data/DlRail'
 
 img_size = (800, 320)
@@ -125,12 +125,11 @@ model = dict(
         ),
         with_seg=False,
         share=True,
-        with_noise=False,
     ),
     # model training and testing settings
     train_cfg=None,
     test_cfg=dict(
-        hm_thr=0.05,
+        hm_thr=0.4,
         nms_thr=2,
         max_lanes=2
     )

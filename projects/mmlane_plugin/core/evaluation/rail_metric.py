@@ -197,7 +197,7 @@ def load_culane_data(data_dir, file_list_path, anno=False):
 def eval_predictions(pred_dir,
                      anno_dir,
                      list_path,
-                     iou_thresholds=[0.5],
+                     iou_thresholds=np.linspace(0.5, 0.95, 10),
                      width=30,
                      official=True,
                      sequential=False,

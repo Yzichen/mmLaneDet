@@ -230,15 +230,3 @@ evaluation = dict(interval=1, start=15)
 load_from=None
 resume_from=None
 
-
-# test_cfg = dict(hm_thr=0.4, nms_thr=4, max_lanes=4)
-# {normal_F1@50: 0.9276, crowd_F1@50: 0.7581, hlight_F1@50: 0.7138, shadow_F1@50: 0.7563, noline_F1@50: 0.5258,
-# arrow_F1@50: 0.8858, curve_F1@50: 0.7172, cross_FP: 1539, night_F1@50: 0.7311, F1@50: 0.7781, F1@75: 0.5881,
-# mF1: 0.5258}
-
-
-# test_cfg = dict(hm_thr=0.5, nms_thr=4, max_lanes=4)
-# {'normal_F1@50': 0.9260184173560169, 'crowd_F1@50': 0.7612921048996587, 'hlight_F1@50': 0.7099184782608695,
-# 'shadow_F1@50': 0.7647399961337714, 'noline_F1@50': 0.49280397022332506, 'arrow_F1@50': 0.8825195800699884,
-# 'curve_F1@50': 0.6972972972972974, 'cross_FP': 911, 'night_F1@50': 0.721444995428983,
-# 'F1@50': 0.7796943312633139, 'F1@75': 0.6050052325982906, 'mF1': 0.5360518053792173}

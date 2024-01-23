@@ -24,10 +24,7 @@ from mmdet.models.utils.builder import TRANSFORMER
 import random
 from mmcv.cnn import bias_init_with_prob, build_norm_layer, Linear
 import copy
-import time
-from visualizer import get_local
 
-from mmlane.models.aggregators import PyramidPoolingModule
 
 
 class CtnetHead(nn.Module):
@@ -590,7 +587,6 @@ class DALNetHead(BaseDenseHead):
 
         return pose, start_points
 
-    @get_local('heat')
     def ctdet_decode(self, heat, thr=0.1):
         """
         :param hm: (1, h_hm, w_hm)
